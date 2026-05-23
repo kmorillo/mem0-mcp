@@ -62,6 +62,7 @@ except ImportError:  # pragma: no cover - Smithery optional
 
 # graph remains off by default , also set the default user_id to "mem0-mcp" when nothing set
 ENV_API_KEY = os.getenv("MEM0_API_KEY")
+ENV_MEM0_HOST = os.getenv("MEM0_HOST") or None
 ENV_DEFAULT_USER_ID = os.getenv("MEM0_DEFAULT_USER_ID", "mem0-mcp")
 ENV_ENABLE_GRAPH_DEFAULT = os.getenv("MEM0_ENABLE_GRAPH_DEFAULT", "false").lower() in {
     "1",
@@ -132,10 +133,11 @@ def _resolve_settings(ctx: Context | None) -> tuple[str, str, bool]:
 
 # init the client
 def _mem0_client(api_key: str) -> MemoryClient:
-    client = _CLIENT_CACHE.get(api_key)
+    cache_key = f"{api_key}:{ENV_MEM0_HOST}"
+    client = _CLIENT_CACHE.get(cache_key)
     if client is None:
-        client = MemoryClient(api_key=api_key)
-        _CLIENT_CACHE[api_key] = client
+        client = MemoryClient(api_key=api_key, host=ENV_MEM0_HOST)
+        _CLIENT_CACHE[cache_key] = client
     return client
 
 
